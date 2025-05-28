@@ -4,7 +4,7 @@ pipeline {
     stages {
         stage('Clone') {
             steps {
-               git credentialsId: 'GiTHUB', url: 'https://github.com/meghavathveeresh/onlinebookstore.git'
+                git 'https://github.com/meghavathveeresh/onlinebookstore.git'
             }
         }
           stage('Build') {
@@ -12,20 +12,15 @@ pipeline {
                bat 'mvn clean install'
             }
         }
-          stage('Test') {
-            steps {
-               bat 'mvn test'
-            }
-        }
-          stage('Generate Juint Test Results') {
-            steps {
-               junit 'target/surefire-reports/*.xml'
-            }
-        }
           stage('Generate Artifacts') {
             steps {
                archiveArtifacts artifacts: 'target/*.war', followSymlinks: false
             }
         }
+          stage('deploy tomcat server') {
+            steps {
+              deploy adapters: [tomcat9(alternativeDeploymentContext: '', credentialsId: 'AMDN', path: '', url: 'http://localhost:8080/')], contextPath: 'meghavathveereshkumar', war: 'target/*.war'
+            }
+        }
     }
-}
+}    
